@@ -5,13 +5,10 @@ Usage::
     ./dummy-web-server.py [<port>]
 Send a GET request::
     curl http://localhost
-Send a HEAD request::
-    curl -I http://localhost
 Send a POST request::
     curl -d "foo=bar&bin=baz" http://localhost
 """
 from http.server import BaseHTTPRequestHandler, HTTPServer
-# import socketserver
 
 
 class S(BaseHTTPRequestHandler):
@@ -22,28 +19,28 @@ class S(BaseHTTPRequestHandler):
 
     def do_GET(self):
         self._set_headers()
-        self.wfile.write("<html><body><h1>hi!</h1></body></html>")
-
-    def do_HEAD(self):
-        self._set_headers()
+        self.wfile.write(b"<html><body><h1>hi!</h1></body></html>")
 
     def do_POST(self):
         # Doesn't do anything with posted data
         self._set_headers()
-        self.wfile.write("<html><body><h1>POST!</h1></body></html>")
+        self.wfile.write(b"<html><body><h1>POST!</h1></body></html>")
 
 
 def run(server_class=HTTPServer, handler_class=S, port=80):
-    server_address = ('', port)
+    server_address = ('localhost', port)
     httpd = server_class(server_address, handler_class)
     print('Starting httpd...')
     httpd.serve_forever()
 
 
 if __name__ == "__main__":
-    from sys import argv
+    import argparse
 
-    if len(argv) == 2:
-        run(port=int(argv[1]))
-    else:
-        run()
+    parser = argparse.ArgumentParser(description='Server to work with http requests.')
+    parser.add_argument('--host', type=str, default='127.0.0.1')
+    parser.add_argument('--port', type=str, default='80')
+
+    args = parser.parse_args()
+
+    run()
