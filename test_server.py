@@ -6,19 +6,21 @@ import server
 import pycurl
 
 
-def request_get(url):
+def request_get(url, port):
     self = pycurl.Curl()
     self.setopt(self.URL, url)
     self.setopt(self.HTTPGET, True)
+    self.setopt(self.PROXYPORT, port)
     self.setopt(self.HTTPHEADER, ['Content-type: application/json'])
     return self
 
 
-def request_post(url, message):
+def request_post(url, port, message):
     self = pycurl.Curl()
     self.setopt(self.URL, url)
     self.setopt(self.POST, True)
     self.setopt(self.WRITEDATA, message)
+    self.setopt(self.PROXYPORT, port)
     self.setopt(self.HTTPHEADER, ['Content-type: application/json'])
     return self
 
@@ -49,8 +51,8 @@ class PTestClass:
         print("Arguments = ", args)
         server.main(args)
 
-    @Test(data_provider=[("127.0.0.1", "localhost"), (80, 8080, 65535)])
-    def test1(self, host, port):
+    @Test(data_provider=[("127.0.0.1", "localhost"), (80, 8080, 65535), ("message1", "message123123213123", "1231232")])
+    def test1(self, host, port, message):
         self = request_perform(request_post(host, port))
         assert_equals(self.getinfo(self.RESPONSE_CODE), 200)
 
@@ -59,10 +61,10 @@ class PTestClass:
         self = request_perform(request_get(host, port))
         assert_equals(self.getinfo(self.RESPONSE_CODE), 200)
 
-    @Test()
-    def test_2(self):
-        self = request_perform('127.0.0.1')
-
+    @Test(data_provider=[("127.0.0.1", "localhost"), (8, 8080, 65535)])
+    def test_2(self, host, port):
+        self = request_perform(request_get(host, port))
+        assert_equals(self.getinfo(self.RESPONSE_CODE), 400)
 
     @AfterMethod
     def after_method(self):

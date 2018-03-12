@@ -4,6 +4,7 @@ from ptest.decorator import TestClass, Test, BeforeSuite, AfterSuite
 from ptest.assertion import assert_equals
 import server
 import client
+import sys
 
 
 class Namespace:
@@ -24,54 +25,56 @@ class PTestClass:
     def test1(self, address, request):
         args = Namespace(host=address, port=80, request=request)
         client.main(args)
-        assert_equals()
+        assert_equals(sys.stdout.getline().strip(), 200)
 
     # negative
     @Test(data_provider=[("8.8.8.8", "500.500.500.50"), ("POST", "GET")])
     def test1_2(self, address, request):
         args = Namespace(host=address, port=80, request=request)
         client.main(args)
-        assert_equals()
+        assert_equals(sys.stdout.getline().strip(), 400)
 
     # positive
     @Test(data_provider=[(0, 80, 8080, 65535), ("POST", "GET")])
     def test_2(self, port, request):
         args = Namespace(port=port, request=request)
         client.main(args)
-        assert_equals()
+        assert_equals(sys.stdout.getline().strip(), 200)
 
     # negative
-    @Test(data_provider=[(80, 8080, 500000, -545), ("POST", "GET")])
+    @Test(data_provider=[(0, 500000, -545), ("POST", "GET")])
     def test_2_2(self, port, request):
         args = Namespace(port=port, request=request)
         client.main(args)
-        assert_equals()
+        assert_equals(sys.stdout.getline().strip(), 400)
 
     # positive
     @Test(data_provider=["message1", "!@#$%^&*()", "Совсем другой язык"])
     def test_3(self, message):
         args = Namespace(request="POST", message=message)
         client.main(args)
-        assert_equals()
+        assert_equals(sys.stdout.getline().strip(), 200)
 
     # negative
     @Test(data_provider=["", 123])
     def test_3_2(self, message):
         args = Namespace(request="POST", message=message)
         client.main(args)
-        assert_equals()
+        assert_equals(sys.stdout.getline().strip(), 400)
 
+    #  positive
     @Test(data_provider=[0, 10000])
     def test_4(self, number):
         args = Namespace(equest="POST", message="test_message", qnumber=number)
         client.main(args)
-        assert_equals()
+        assert_equals(sys.stdout.getline().strip(), 200)
 
+    # negative
     @Test(data_provider=[-1, 10001])
     def test_4_2(self, number):
         args = Namespace(equest="POST", message="test_message", qnumber=number)
         client.main(args)
-        assert_equals()
+        assert_equals(sys.stdout.getline().strip(), 400)
 
     # TBD need to close server after tests complete
     # @AfterSuite(always_run=True, description="Clean up")
