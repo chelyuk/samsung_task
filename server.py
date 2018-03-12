@@ -3,6 +3,7 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import queue
 import json
+import argparse
 
 queue_list = []
 
@@ -74,10 +75,16 @@ class S(BaseHTTPRequestHandler):
             self.wfile.write(bytes(str(error).encode("utf-8")))
 
 
-def main(args):
+def create_parser():
+    parser = argparse.ArgumentParser(description='Server to work with http requests.')
+    parser.add_argument('--host', type=str, default='127.0.0.1', help='ip address')
+    parser.add_argument('--port', type=str, default='80', help='Port to establish connection. Default: 80')
+    return parser
 
+
+def main(args):
     for i in range(10000):
-        queue_list.append(queue.Queue(maxsize=5))
+        queue_list.append(queue.Queue(maxsize=100))
 
     server_class = HTTPServer
     handler_class = S
@@ -89,12 +96,7 @@ def main(args):
 
 
 if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser(description='Server to work with http requests.')
-    parser.add_argument('--host', type=str, default='127.0.0.1', help='ip address')
-    parser.add_argument('--port', type=str, default='80', help='Port to establish connection. Default: 80')
-
+    parser = create_parser()
     args = parser.parse_args()
 
     main(args)

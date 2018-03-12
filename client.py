@@ -1,6 +1,9 @@
+# !/usr/bin/env python
+
 import http.client
 import json
 import sys
+import argparse
 
 
 class Error(Exception):
@@ -8,7 +11,7 @@ class Error(Exception):
         self.msg = msg
 
 
-def run(args):
+def main(args):
     try:
         command = args.request
         address = args.host + ":" + args.port
@@ -44,9 +47,7 @@ def run(args):
     conn.close()
 
 
-if __name__ == "__main__":
-    import argparse
-
+def create_parser():
     parser = argparse.ArgumentParser(description='Client to send http requests.')
     parser.add_argument('--host', type=str, default='127.0.0.1', help='ip address')
     parser.add_argument('--port', type=str, default='80', help='Port to establish connection. Default: 80')
@@ -55,7 +56,11 @@ if __name__ == "__main__":
     parser.add_argument('--qnumber', type=int, default=0,
                         help='Number of queue, supported range is from 0 to 10000.Default: 0')
     parser.add_argument('--test_mode', action='store_false', help='Remove message validation on client side')
+    return parser
 
+
+if __name__ == "__main__":
+    parser = create_parser()
     args = parser.parse_args()
 
-    run(args)
+    main(args)
